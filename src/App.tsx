@@ -21,37 +21,34 @@ export default function App() {
   const data = useAppData();
   const { state, activateLicense, deactivateLicense } = useLicense();
 
-  // Verificação de licença em curso
-  if (state.status === "loading") {
+  if (state.status === 'loading') {
     return (
       <div className="flex items-center justify-center min-h-screen bg-neutral-100">
         <div className="text-center">
           <Loader2 size={36} className="text-brand-600 animate-spin mx-auto mb-3" />
-          <p className="text-sm text-neutral-500">A verificar licença do AVEGESTOR by AgroConnect...</p>
+          <p className="text-sm text-neutral-500">A verificar licença...</p>
         </div>
       </div>
     );
   }
 
-  // Sem licença válida — mostrar ecrã de ativação
-  if (state.status === "none" || state.status === "invalid") {
+  if (state.status === 'none' || state.status === 'invalid') {
     return (
       <LicenseView
         onActivate={activateLicense}
         onDeactivate={deactivateLicense}
         license={null}
-        error={state.status === "invalid" ? state.error : null}
+        error={state.status === 'invalid' ? state.error : null}
       />
     );
   }
 
-  // Carregamento dos dados da app
   if (data.loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-neutral-100">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin mx-auto mb-3"></div>
-          <p className="text-sm text-neutral-500">A carregar AVEGESTOR by AgroConnect...</p>
+          <p className="text-sm text-neutral-500">A carregar dados...</p>
         </div>
       </div>
     );
