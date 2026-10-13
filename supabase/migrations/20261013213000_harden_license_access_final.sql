@@ -36,6 +36,3 @@ WITH CHECK (false);
 
 REVOKE ALL PRIVILEGES ON TABLE public.licenses FROM anon, authenticated;
 REVOKE ALL PRIVILEGES ON TABLE public.activations FROM anon, authenticated;
-
--- A browser user should never be able to read/write the sensitive license tables directly.
--- All license checks and activations must run through the backend edge function.
