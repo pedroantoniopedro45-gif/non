@@ -16,8 +16,22 @@ export type LicenseState =
 
 const STORAGE_KEY = "avicontrol-license";
 const DEVICE_KEY = "avicontrol-device-id";
-// Tempo entre verificações online (24h em ms)
 const VERIFY_INTERVAL = 24 * 60 * 60 * 1000;
+
+function isValidLicenseInfo(value: unknown): value is LicenseInfo {
+  if (!value || typeof value !== "object") return false;
+
+  const license = value as Record<string, unknown>;
+  return (
+    typeof license.key === "string" &&
+    typeof license.plan_type === "string" &&
+    (license.customer_name === null || typeof license.customer_name === "string") &&
+    (license.expires_at === null || typeof license.expires_at === "string") &&
+    typeof license.max_devices === "number" &&
+    Number.isFinite(license.max_devices) &&
+    license.max_devices > 0
+  );
+}
 
 function getOrCreateDeviceId(): string {
   let id = localStorage.getItem(DEVICE_KEY);
@@ -37,17 +51,47 @@ interface StoredLicense {
 function getStoredLicense(): StoredLicense | null {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) return null;
+
   try {
-    return JSON.parse(raw) as StoredLicense;
+    const parsed = JSON.parse(raw) as Partial<StoredLicense>;
+    if (
+      !parsed ||
+      typeof parsed.license_key !== "string" ||
+      !isValidLicenseInfo(parsed.license) ||
+      typeof parsed.verified_at !== "number"
+    ) {
+      return null;
+    }
+
+    const normalizedKey = parsed.license_key.trim().toUpperCase();
+    if (!normalizedKey) return null;
+
+    const expiresAt = parsed.license.expires_at;
+    if (expiresAt && Number.isNaN(new Date(expiresAt).getTime())) {
+      return null;
+    }
+
+    return {
+      license_key: normalizedKey,
+      license: {
+        ...parsed.license,
+        key: normalizedKey,
+      },
+      verified_at: parsed.verified_at,
+    };
   } catch {
     return null;
   }
 }
 
 function storeLicense(key: string, license: LicenseInfo) {
+  const normalizedKey = key.trim().toUpperCase();
   const data: StoredLicense = {
-    license_key: key,
-    license,
+    license_key: normalizedKey,
+    license: {
+      ...license,
+      key: normalizedKey,
+    },
     verified_at: Date.now(),
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -62,9 +106,17 @@ export function useLicense() {
   const deviceId = getOrCreateDeviceId();
 
   const verifyOnline = useCallback(
-    async (key: string, action: "verify" | "activate" = "verify"): Promise<{ valid: boolean; license?: LicenseInfo; error?: string; needs_activation?: boolean }> => {
+    async (
+      key: string,
+      action: "verify" | "activate" = "verify"
+    ): Promise<{ valid: boolean; license?: LicenseInfo; error?: string; needs_activation?: boolean }> => {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+      if (!supabaseUrl || !anonKey) {
+        return { valid: false, error: "Serviço de licenças indisponível no momento." };
+      }
+
       const apiUrl = `${supabaseUrl}/functions/v1/verify-license`;
 
       const resp = await fetch(apiUrl, {
@@ -90,7 +142,11 @@ export function useLicense() {
       if (data.valid && data.license) {
         return { valid: true, license: data.license as LicenseInfo };
       }
-      return { valid: false, error: data.error || "Licença inválida.", needs_activation: data.needs_activation };
+      return {
+        valid: false,
+        error: data.error || "Licença inválida.",
+        needs_activation: data.needs_activation,
+      };
     },
     [deviceId]
   );
@@ -102,25 +158,21 @@ export function useLicense() {
       return;
     }
 
-    // Verificar se a licença armazenada já expirou localmente
     if (stored.license.expires_at) {
       const exp = new Date(stored.license.expires_at);
-      if (exp < new Date()) {
+      if (Number.isNaN(exp.getTime()) || exp < new Date()) {
         clearStoredLicense();
         setState({ status: "invalid", error: "A sua licença expirou. Contacte o fornecedor para renovar." });
         return;
       }
     }
 
-    // Verificar online periodicamente
     const timeSinceVerify = Date.now() - stored.verified_at;
     if (timeSinceVerify < VERIFY_INTERVAL) {
-      // Ainda dentro do período — usar cache local
       setState({ status: "valid", license: stored.license });
       return;
     }
 
-    // Verificar online
     try {
       const result = await verifyOnline(stored.license_key, "verify");
       if (result.valid && result.license) {
@@ -131,7 +183,6 @@ export function useLicense() {
         setState({ status: "invalid", error: result.error || "Licença inválida." });
       }
     } catch {
-      // Sem ligação à internet — usar cache local se ainda válida
       setState({ status: "valid", license: stored.license });
     }
   }, [verifyOnline]);
@@ -141,7 +192,7 @@ export function useLicense() {
       try {
         const result = await verifyOnline(key, "activate");
         if (result.valid && result.license) {
-          storeLicense(key.trim().toUpperCase(), result.license);
+          storeLicense(key, result.license);
           setState({ status: "valid", license: result.license });
           return { success: true };
         }
