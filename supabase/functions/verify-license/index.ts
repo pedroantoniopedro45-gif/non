@@ -6,6 +6,9 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
+const rateLimitWindowMs = 60_000;
+const rateLimitMap = new Map<string, number>();
+
 interface LicenseRow {
   id: string;
   license_key: string;
@@ -28,6 +31,18 @@ function jsonResponse(body: Record<string, unknown>, status = 200) {
   });
 }
 
+function isRateLimited(key: string) {
+  const now = Date.now();
+  const lastRequest = rateLimitMap.get(key);
+
+  if (lastRequest && now - lastRequest < rateLimitWindowMs) {
+    return true;
+  }
+
+  rateLimitMap.set(key, now);
+  return false;
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 200, headers: corsHeaders });
@@ -48,7 +63,11 @@ Deno.serve(async (req: Request) => {
       return jsonResponse({ valid: false, error: "Chave de licença e identificador do dispositivo são obrigatórios." }, 400);
     }
 
-    // 1. Buscar a licença pela chave
+    const requestKey = `${deviceId}:${licenseKey}`;
+    if (isRateLimited(requestKey)) {
+      return jsonResponse({ valid: false, error: "Demasiados pedidos. Tente novamente mais tarde." }, 429);
+    }
+
     const { data: license, error: licError } = await adminClient
       .from("licenses")
       .select("id, license_key, customer_name, plan_type, status, max_devices, expires_at")
@@ -56,24 +75,22 @@ Deno.serve(async (req: Request) => {
       .maybeSingle();
 
     if (licError || !license) {
-      return jsonResponse({ valid: false, error: "Chave de licença não encontrada." });
+      return jsonResponse({ valid: false, error: "Licença inválida." }, 401);
     }
 
     const lic = license as LicenseRow;
 
-    // 2. Verificar estado da licença
     if (lic.status === "revoked") {
-      return jsonResponse({ valid: false, error: "Esta licença foi revogada. Contacte o fornecedor." });
+      return jsonResponse({ valid: false, error: "Esta licença foi revogada." }, 401);
     }
     if (lic.status === "inactive") {
-      return jsonResponse({ valid: false, error: "Esta licença está inativa. Contacte o fornecedor." });
+      return jsonResponse({ valid: false, error: "Esta licença está inativa." }, 401);
     }
 
-    // 3. Verificar validade
     const now = new Date();
     if (lic.expires_at && new Date(lic.expires_at) < now) {
       await adminClient.from("licenses").update({ status: "expired" }).eq("id", lic.id);
-      return jsonResponse({ valid: false, error: "Esta licença expirou. Contacte o fornecedor para renovar." });
+      return jsonResponse({ valid: false, error: "Esta licença expirou." }, 401);
     }
 
     const licensePayload = {
@@ -84,7 +101,6 @@ Deno.serve(async (req: Request) => {
       max_devices: lic.max_devices,
     };
 
-    // 4. Buscar ativação existente para este dispositivo
     const { data: existingAct } = await adminClient
       .from("activations")
       .select("id, is_active")
@@ -93,7 +109,6 @@ Deno.serve(async (req: Request) => {
       .maybeSingle();
 
     if (existingAct) {
-      // Dispositivo já tem ativação — atualizar last_seen
       await adminClient
         .from("activations")
         .update({ last_seen_at: now.toISOString(), is_active: true })
@@ -102,9 +117,7 @@ Deno.serve(async (req: Request) => {
       return jsonResponse({ valid: true, license: licensePayload, already_activated: true });
     }
 
-    // 5. Nova ativação — verificar limite de dispositivos
     if (action === "activate") {
-      // Contar ativações ativas
       const { count } = await adminClient
         .from("activations")
         .select("*", { count: "exact", head: true })
@@ -114,11 +127,10 @@ Deno.serve(async (req: Request) => {
       if ((count || 0) >= lic.max_devices) {
         return jsonResponse({
           valid: false,
-          error: `Esta licença já atingiu o limite de ${lic.max_devices} dispositivo(s). Contacte o fornecedor para aumentar o limite.`,
-        });
+          error: `Esta licença já atingiu o limite de ${lic.max_devices} dispositivo(s).`,
+        }, 403);
       }
 
-      // Tentar inserir — o UNIQUE(license_id, device_id) previne duplicação mesmo sob concorrência
       const { error: insertError } = await adminClient.from("activations").insert({
         license_id: lic.id,
         device_id: deviceId,
@@ -129,22 +141,20 @@ Deno.serve(async (req: Request) => {
       });
 
       if (insertError) {
-        // Se violou a restrição única, o dispositivo foi ativado entretanto — tratar como já ativado
         if (insertError.message.includes("duplicate") || insertError.message.includes("unique")) {
           return jsonResponse({ valid: true, license: licensePayload, already_activated: true });
         }
-        return jsonResponse({ valid: false, error: "Erro ao ativar a licença. Tente novamente." }, 500);
+        return jsonResponse({ valid: false, error: "Erro ao ativar a licença." }, 500);
       }
 
       return jsonResponse({ valid: true, license: licensePayload, already_activated: false });
     }
 
-    // 6. Apenas verificar (action !== "activate") — dispositivo sem ativação
     return jsonResponse({
       valid: false,
-      error: "Esta licença ainda não foi ativada neste dispositivo. Ative primeiro.",
+      error: "Esta licença ainda não foi ativada neste dispositivo.",
       needs_activation: true,
-    });
+    }, 401);
   } catch {
     return jsonResponse({ valid: false, error: "Erro interno do servidor." }, 500);
   }
