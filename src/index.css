@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  body { @apply bg-app-surface text-neutral-800 font-sans antialiased; }
+  ::selection { @apply bg-brand-200 text-brand-900; }
+  :focus-visible { outline: 3px solid #fbbf24; outline-offset: 3px; }
+}
+
+@layer components {
+  .card { @apply bg-white rounded-2xl border border-neutral-200/80 shadow-[0_8px_28px_rgba(15,23,42,0.05)]; }
+  .btn { @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed; }
+  .btn-primary { @apply btn bg-brand-800 text-white hover:bg-brand-900 active:scale-[0.98] shadow-[0_8px_18px_rgba(22,101,52,0.18)]; }
+  .btn-secondary { @apply btn bg-neutral-100 text-neutral-700 hover:bg-neutral-200 active:scale-[0.98]; }
+  .btn-danger { @apply btn bg-danger text-white hover:bg-red-700 active:scale-[0.98]; }
+  .btn-sm { @apply px-3 py-1.5 text-xs; }
+  .input { @apply w-full px-3.5 py-3 rounded-xl border border-neutral-300 bg-white text-neutral-800 text-sm transition-colors duration-200 focus:border-brand-600 focus:ring-4 focus:ring-brand-100 outline-none; }
+  .label { @apply block text-sm font-bold text-neutral-700 mb-1.5; }
+  .stat-card { @apply card p-4 md:p-5 flex flex-col gap-1; }
+  .section-title { @apply text-xl font-extrabold text-brand-900; }
+  .badge { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold; }
+  .brand-mark { @apply h-12 w-12 rounded-2xl bg-brand-700 text-white flex items-center justify-center shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12),0_8px_18px_rgba(0,0,0,0.16)]; }
+  .brand-mark-sm { @apply h-10 w-10 rounded-xl shadow-none; }
+  .nav-item { @apply w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-bold text-brand-100/75 transition-all duration-200 text-left hover:bg-brand-900 hover:text-white; }
+  .nav-item-active { @apply bg-accent text-brand-900 shadow-[0_8px_18px_rgba(251,191,36,0.2)] hover:bg-accent; }
+  .offline-pill { @apply inline-flex items-center gap-1.5 rounded-full bg-brand-900 text-brand-100 px-3 py-1.5 text-[11px] font-bold; }
+  .offline-pill-compact { @apply bg-brand-900/70 px-2.5 py-1 text-brand-100; }
+  .license-mini { @apply flex items-center gap-2 rounded-xl bg-brand-900 px-2.5 py-2; }
+  .eyebrow { @apply text-[10px] font-extrabold uppercase tracking-[0.18em] text-brand-700; }
+  .welcome-banner { @apply relative overflow-hidden rounded-3xl bg-brand-900 p-5 md:p-7 flex items-center justify-between gap-5 shadow-[0_16px_36px_rgba(5,46,22,0.18)]; }
+  .welcome-banner::after { content: ''; @apply absolute -right-16 -bottom-24 h-56 w-56 rounded-full border-[28px] border-brand-800/60; }
+  .feature-stat { @apply rounded-2xl p-4 md:p-5 min-h-[142px] flex flex-col justify-between transition-transform duration-200 hover:-translate-y-0.5; }
+  .feature-stat-green { @apply bg-brand-800 text-white shadow-[0_12px_24px_rgba(22,101,52,0.16)]; }
+  .feature-stat-yellow { @apply bg-accent text-brand-900 shadow-[0_12px_24px_rgba(245,158,11,0.14)]; }
+  .feature-stat-cream { @apply bg-white text-brand-900 border border-brand-100 shadow-[0_8px_24px_rgba(15,23,42,0.05)]; }
+  .feature-icon { @apply h-10 w-10 rounded-xl bg-white/15 flex items-center justify-center; }
+  .feature-stat-yellow .feature-icon { @apply bg-brand-900/10; }
+  .feature-stat-cream .feature-icon { @apply bg-brand-100 text-brand-800; }
+  .quick-action { @apply flex items-center gap-3 rounded-2xl p-4 text-left transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.99]; }
+  .quick-action-green { @apply bg-brand-800 text-white shadow-[0_10px_22px_rgba(22,101,52,0.15)]; }
+  .quick-action-yellow { @apply bg-accent text-brand-900 shadow-[0_10px_22px_rgba(245,158,11,0.12)]; }
+  .quick-action-icon { @apply h-10 w-10 shrink-0 rounded-xl bg-white/15 flex items-center justify-center; }
+  .quick-action-yellow .quick-action-icon { @apply bg-brand-900/10; }
+  .pricing-card { @apply rounded-3xl p-5 md:p-6 flex flex-col shadow-[0_12px_28px_rgba(15,23,42,0.08)] transition-all duration-200 hover:-translate-y-1; }
+  .pricing-card-neutral { @apply bg-white text-brand-900 border border-neutral-200; }
+  .pricing-card-featured { @apply bg-brand-800 text-white border-2 border-accent shadow-[0_16px_34px_rgba(22,101,52,0.2)] lg:-translate-y-2; }
+  .pricing-card-premium { @apply bg-brand-900 text-white border border-brand-700; }
+  .pricing-icon { @apply h-11 w-11 rounded-2xl bg-brand-100 text-brand-800 flex items-center justify-center; }
+  .pricing-card-featured .pricing-icon { @apply bg-accent text-brand-900; }
+  .pricing-card-premium .pricing-icon { @apply bg-brand-800 text-accent; }
+  .pricing-badge { @apply rounded-full bg-accent text-brand-900 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wide; }
+  .pricing-button { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 bg-brand-800 text-white text-sm font-extrabold hover:bg-brand-900 transition-colors; }
+  .pricing-card-featured .pricing-button { @apply bg-accent text-brand-900 hover:bg-yellow-300; }
+  .pricing-card-premium .pricing-button { @apply bg-white text-brand-900 hover:bg-brand-50; }
+  .contact-link { @apply inline-flex items-center gap-2 text-brand-700 font-bold hover:text-brand-900 hover:underline; }
+  .hero-banner { @apply bg-gradient-to-br from-brand-700 to-brand-900; }
+  .hero-mark { @apply h-16 w-16 rounded-2xl bg-white/15 text-white flex items-center justify-center; }
+  .feature-icon-green { @apply h-10 w-10 shrink-0 rounded-xl bg-brand-100 text-brand-800 flex items-center justify-center; }
+  .mission-card { @apply bg-gradient-to-br from-brand-700 to-brand-900 border-0; }
+  .mission-icon { @apply h-11 w-11 rounded-2xl bg-accent text-brand-900 flex items-center justify-center; }
+  .tagline-card { @apply bg-gradient-to-r from-brand-700 to-brand-900 border-0; }
+}
+
+@layer utilities {
+  .bg-app-surface { background: #f5f7f4; }
+  .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background: #a7c5ac; border-radius: 3px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #6c9b74; }
+  .mobile-topbar { @apply flex items-center bg-brand-900 px-4 py-3 shadow-lg; }
+  .mobile-bottom-nav { @apply fixed bottom-0 left-0 right-0 z-30 grid grid-cols-5 bg-white/95 backdrop-blur border-t border-neutral-200 shadow-[0_-8px_24px_rgba(15,23,42,0.08)]; }
+  .mobile-tab { @apply flex flex-col items-center gap-1 py-3 text-[10px] font-bold text-neutral-400 transition-colors; }
+  .mobile-tab-active { @apply text-brand-800; }
+}
+
+.fade-in { animation: fadeIn 0.3s ease-out forwards; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-in { animation: none; }
+  html { scroll-behavior: auto; }
+}
