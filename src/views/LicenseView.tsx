@@ -139,11 +139,12 @@ export default function LicenseView({ onActivate, onDeactivate, license, error }
             className="w-full aspect-square object-cover md:aspect-[16/7]"
           />
         </div>
-        <div className="text-center max-w-2xl mx-auto mb-8 md:mb-10">
+
+        <div className="text-center max-w-3xl mx-auto mb-8 md:mb-10">
           <div className="brand-mark mx-auto mb-4"><ShieldCheck size={27} /></div>
           <p className="eyebrow">AVEGESTOR BY AGROCONNECT · MOÇAMBIQUE</p>
-          <p className="text-sm font-semibold text-brand-700 mb-2">Bem-vindo à sua gestão avícola</p>
-          <h1 className="text-3xl md:text-5xl font-extrabold text-brand-900 tracking-tight mt-2">Escolha a sua licença</h1>
+          <p className="text-sm font-semibold text-brand-700 mb-2">Bem-vindo</p>
+          <h1 className="text-3xl md:text-5xl font-extrabold text-brand-900 tracking-tight mt-2">AVEGESTOR by AgroConnect</h1>
           <p className="text-neutral-500 mt-3 text-sm md:text-base">Gestão profissional de aves, com dados guardados no dispositivo e acesso offline.</p>
         </div>
 
@@ -153,22 +154,29 @@ export default function LicenseView({ onActivate, onDeactivate, license, error }
 
         <div className="grid lg:grid-cols-2 gap-4 mt-5">
           <div className="card p-5 md:p-6">
-            <div className="flex items-center gap-3 mb-3"><div className="h-10 w-10 rounded-xl bg-accent/20 text-brand-800 flex items-center justify-center"><MapPin size={20} /></div><h2 className="text-lg font-extrabold text-brand-900">Condições da assistência presencial</h2></div>
-            <p className="text-sm text-neutral-600 leading-6">As despesas de transporte e deslocação do responsável serão suportadas pelo criador de aves. O valor deve ser acordado previamente, e o atendimento depende de agendamento e disponibilidade.</p>
+            <div className="flex items-center gap-3 mb-3"><div className="h-10 w-10 rounded-xl bg-accent/20 text-brand-800 flex items-center justify-center"><MapPin size={20} /></div><h2 className="text-lg font-bold text-neutral-800">Onde atendemos</h2></div>
+            <p className="text-sm text-neutral-600 leading-6">Atendemos clientes em todas as zonas de produção avícola de Moçambique, com foco em suporte presencial em Beira, Chimoio e Tete, e atendimento virtual em todo o país.</p>
           </div>
           <div className="card p-5 md:p-6">
-            <div className="flex items-center gap-3 mb-3"><div className="h-10 w-10 rounded-xl bg-brand-100 text-brand-800 flex items-center justify-center"><MessageCircle size={20} /></div><h2 className="text-lg font-extrabold text-brand-900">Contactos para aquisição e assistência</h2></div>
-            <div className="space-y-2 text-sm"><p className="font-bold text-neutral-800">Responsável: Pedro Antonio Pedro</p><a className="contact-link" href={`${WHATSAPP_BASE}?text=${encodeURIComponent('Olá Pedro, gostaria de adquirir uma licença do AVEGESTOR by AgroConnect.')}`} target="_blank" rel="noreferrer"><MessageCircle size={16} /> +258 865831887</a><a className="contact-link" href="mailto:pedroantoniopedro45@gmail.com"><Mail size={16} /> pedroantoniopedro45@gmail.com</a></div>
+            <div className="flex items-center gap-3 mb-3"><div className="h-10 w-10 rounded-xl bg-brand-100 text-brand-800 flex items-center justify-center"><MessageCircle size={20} /></div><h2 className="text-lg font-bold text-neutral-800">Contacto</h2></div>
+            <div className="space-y-2 text-sm"><p className="font-bold text-neutral-800">Responsável: Pedro Antonio Pedro</p><a className="contact-link" href={`${WHATSAPP_BASE}?text=${encodeURIComponent('Olá, quero saber mais sobre o AVEGESTOR by AgroConnect.')}`} target="_blank" rel="noreferrer">WhatsApp: +258 865831887</a></div>
           </div>
         </div>
 
         <div className="card max-w-2xl mx-auto mt-6 p-5 md:p-6 border-brand-200 bg-brand-50/60">
-          <div className="flex items-center gap-3 mb-4"><div className="h-10 w-10 rounded-xl bg-white text-brand-800 flex items-center justify-center shadow-sm"><KeyRound size={20} /></div><div><h2 className="text-lg font-extrabold text-brand-900">Já tem uma chave?</h2><p className="text-xs text-neutral-500">Ative a licença para desbloquear o aplicativo.</p></div></div>
-          <div className="space-y-3"><input type="text" className="input font-mono text-center text-lg tracking-wider uppercase" value={key} onChange={(e) => setKey(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleActivate()} placeholder="XXXX-XXXX-XXXX-XXXX" maxLength={24} autoFocus disabled={loading} />{(localError || error) && <div className="flex items-start gap-2 text-sm text-danger bg-red-50 rounded-lg p-3"><AlertCircle size={18} className="flex-shrink-0 mt-0.5" /><span>{localError || error}</span></div>}<button className="btn-primary w-full flex items-center justify-center gap-2" onClick={handleActivate} disabled={loading}>{loading ? <><Loader2 size={18} className="animate-spin" /> A verificar...</> : <><Lock size={18} /> Ativar Licença</>}</button></div>
+          <div className="flex items-center gap-3 mb-4"><div className="h-10 w-10 rounded-xl bg-white text-brand-800 flex items-center justify-center shadow-sm"><KeyRound size={20} /></div><div><p className="text-xs uppercase tracking-[0.2em] text-brand-700">Licença</p><h2 className="text-xl font-bold text-neutral-800">Ative a sua licença</h2></div></div>
+          <div className="space-y-3"><input type="text" className="input font-mono text-center text-lg tracking-wider uppercase" value={key} onChange={(e) => setKey(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleActivate(); }} placeholder="XXXX-XXXX-XXXX-XXXX" /></div>
+          {localError && <div className="mt-3 flex items-center gap-2 text-sm text-red-600"><AlertCircle size={16} /><span>{localError}</span></div>}
+          {error && <div className="mt-3 flex items-center gap-2 text-sm text-red-600"><AlertCircle size={16} /><span>{error}</span></div>}
+          <div className="mt-4 flex justify-center">
+            <button className="btn-primary w-full sm:w-auto" onClick={handleActivate} disabled={loading}>
+              {loading ? <><Loader2 size={16} className="animate-spin" /> A validar...</> : 'Ativar licença'}
+            </button>
+          </div>
           <div className="mt-4 flex items-center justify-center gap-2 text-xs text-neutral-500"><CheckCircle2 size={14} className="text-brand-700" /><span>Funciona offline após ativação</span></div>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6"><p className="text-center text-xs text-neutral-400">A aquisição é confirmada pelo responsável. Os botões não simulam pagamentos nem ativam licenças automaticamente.</p><button className="text-xs font-bold text-neutral-400 hover:text-brand-700" onClick={() => setAdminOpen(true)}>Área do responsável</button></div>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6"><p className="text-center text-xs text-neutral-400">A aquisição é confirmada pelo responsável. Os dados da licença são tratados de forma segura.</p></div>
         {selectedPlan && <LicensePurchaseModal plan={selectedPlan} onClose={() => setSelectedPlan(null)} />}
         {adminOpen && <AdminLicenseRequestsView onClose={() => setAdminOpen(false)} />}
       </div>
@@ -178,9 +186,35 @@ export default function LicenseView({ onActivate, onDeactivate, license, error }
 
 function PricingCard({ plan, onSelect }: { plan: PricingPlan; onSelect: (plan: LicensePlan) => void }) {
   const toneClass = plan.tone === 'featured' ? 'pricing-card-featured' : plan.tone === 'premium' ? 'pricing-card-premium' : 'pricing-card-neutral';
-  return <article className={`pricing-card ${toneClass}`}><div className="flex items-start justify-between gap-3"><div className="pricing-icon">{plan.icon}</div>{plan.badge && <span className="pricing-badge">{plan.badge}</span>}</div><h2 className="text-xl font-extrabold mt-5">{plan.name}</h2><p className="text-sm opacity-75 mt-2 min-h-[42px]">{plan.description}</p><div className="flex items-end gap-2 mt-5"><span className="text-4xl font-extrabold tracking-tight">{plan.price}</span><span className="text-sm font-bold mb-1">MZN</span></div><p className="text-xs font-bold opacity-70 mt-1">Validade: {plan.period}</p><div className="border-t border-current/15 my-5" /><ul className="space-y-3 text-sm flex-1">{plan.features.map((feature) => <li key={feature} className="flex items-start gap-2"><Check size={16} className="mt-0.5 shrink-0" /><span>{feature}</span></li>)}</ul><button className="pricing-button mt-6" onClick={() => onSelect(plan.planType)}><ShoppingCart size={17} /> Adquirir licença</button></article>;
+  return (
+    <article className={`pricing-card ${toneClass}`}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="pricing-icon">{plan.icon}</div>
+        {plan.badge && <span className="badge">{plan.badge}</span>}
+      </div>
+      <div className="mt-4">
+        <h3 className="text-xl font-bold text-neutral-800">{plan.name}</h3>
+        <p className="text-sm text-neutral-500 mt-1">{plan.period}</p>
+      </div>
+      <div className="mt-4 flex items-baseline gap-2">
+        <span className="text-3xl font-extrabold text-neutral-900">MZN {plan.price}</span>
+      </div>
+      <p className="mt-3 text-sm text-neutral-600">{plan.description}</p>
+      <ul className="mt-4 space-y-2 text-sm text-neutral-700">
+        {plan.features.map((feature) => (
+          <li key={feature} className="flex items-start gap-2"><Check size={16} className="text-brand-700 mt-0.5" /> <span>{feature}</span></li>
+        ))}
+      </ul>
+      <button className="btn-secondary w-full mt-5" onClick={() => onSelect(plan.planType)}>Escolher plano</button>
+    </article>
+  );
 }
 
 function InfoRow({ label, value, mono = false }: { label: string; value: string; mono?: boolean }) {
-  return <div className="flex justify-between gap-3"><span className="text-neutral-500 text-sm">{label}:</span><span className={`font-semibold text-neutral-700 text-sm text-right ${mono ? 'font-mono' : ''}`}>{value}</span></div>;
+  return (
+    <div className="flex justify-between gap-3">
+      <span className="text-neutral-500 text-sm">{label}:</span>
+      <span className={`font-semibold text-neutral-700 text-sm text-right ${mono ? 'font-mono tracking-wide' : ''}`}>{value}</span>
+    </div>
+  );
 }
