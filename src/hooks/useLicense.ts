@@ -142,6 +142,7 @@ export function useLicense() {
       if (data.valid && data.license) {
         return { valid: true, license: data.license as LicenseInfo };
       }
+
       return {
         valid: false,
         error: data.error || "Licença inválida.",
