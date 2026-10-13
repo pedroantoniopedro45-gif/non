@@ -1,0 +1,8 @@
+{
+	"appId": "com.avicontrolpro.app",
+	"appName": "AVEGESTOR by AgroConnect",
+	"webDir": "dist",
+	"server": {
+		"androidScheme": "https"
+	}
+}

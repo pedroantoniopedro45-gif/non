@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">AVEGESTOR by AgroConnect</string>
+    <string name="title_activity_main">AVEGESTOR by AgroConnect</string>
+    <string name="package_name">com.avicontrolpro.app</string>
+    <string name="custom_url_scheme">com.avicontrolpro.app</string>
+</resources>

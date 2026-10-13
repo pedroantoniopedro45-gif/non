@@ -1,0 +1,5 @@
+[functions.verify-license]
+verify_jwt = false
+
+[functions.manage-license-request]
+verify_jwt = true
